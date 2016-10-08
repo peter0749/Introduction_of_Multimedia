@@ -52,12 +52,22 @@ for i = 1:size(images,1)
    NNebor0 = [NNebor0 minCOL0];
 end
 
-SAD_C = 0; SDD_C = 0;
+SAD_C = 0; SSD_C = 0;
 for i = 1:size(id_offset,2)-1
     SAD_C = SAD_C + sum(NNebor0(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
-    SDD_C = SDD_C + sum(NNebor(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
+    SSD_C = SSD_C + sum(NNebor(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
 end
 SAD_P = SAD_C / size(images,1)
-SDD_P = SDD_C / size(images,1)
+SSD_P = SSD_C / size(images,1)
+%Plot two images for demostration...
+i=round(rand()*size(images,1));
+j=NNebor(i);
+colormap gray;
+k1 = reshape(uint8(round(images(i,:))),192,168);
+k2 = reshape(uint8(round(images(j,:))),192,168);
+subplot(1,2,1);
+image(k1(:,:));axis image;
+subplot(1,2,2);
+image(k2(:,:));axis image;
 
 %image(temp_images);
