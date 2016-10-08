@@ -1,9 +1,9 @@
-% ¥H¤U¬°¶}±Ò¤@­Ó RGB ªº Bitmap ¹Ï¡A§Q¥Î¨ä RGB Chenal ªº Pixel Value Âà¬° YIQ Chenal ªº½d¨Ò
-% §Q¥Î Matlab ¨Ó¼g¼v¹³ªºµ{¦¡«Ü®e©ö¡A¤À¬°¤U¦Cªº¨BÆJ
-% 1.¶}±Ò¤@­Ó±m¦â¼v¹³ÀÉ¡].bmp¡^¡]24 bit¡^
-% 2.Åª¨ú¦¹¼v¹³ªº Pixel value
-% 3.¼v¹³³B²z  
-% 4.¦s¨úµ²ªG¨ÃÅã¥Ü
+% ä»¥ä¸‹ç‚ºé–‹å•Ÿä¸€å€‹ RGB çš„ Bitmap åœ–ï¼Œåˆ©ç”¨å…¶ RGB Chenal çš„ Pixel Value è½‰ç‚º YIQ Chenal çš„ç¯„ä¾‹
+% åˆ©ç”¨ Matlab ä¾†å¯«å½±åƒçš„ç¨‹å¼å¾ˆå®¹æ˜“ï¼Œåˆ†ç‚ºä¸‹åˆ—çš„æ­¥é©Ÿ
+% 1.é–‹å•Ÿä¸€å€‹å½©è‰²å½±åƒæª”ï¼ˆ.bmpï¼‰ï¼ˆ24 bitï¼‰
+% 2.è®€å–æ­¤å½±åƒçš„ Pixel value
+% 3.å½±åƒè™•ç†  
+% 4.å­˜å–çµæœä¸¦é¡¯ç¤º
 
 
 clear
@@ -21,7 +21,7 @@ if (B~=3)
 end
 
 % Image Preocessing (RGB -> YIQ)
-% ¥H³o¸Ìªº¨Ò¤l¬O­n§â RGB -> YIQ ³Ì«á¨ú Y ¡]Gray Level¡^­ÈÅã¥Ü¥X¨Ó
+% ä»¥é€™è£¡çš„ä¾‹å­æ˜¯è¦æŠŠ RGB -> YIQ æœ€å¾Œå– Y ï¼ˆGray Levelï¼‰å€¼é¡¯ç¤ºå‡ºä¾†
 fprintf('wait ......\n');
 Y = double(reshape(X, W*H, B));
 Y = Y * RGB2YIQ';
@@ -34,15 +34,15 @@ Y = uint8(round(reshape(Y, H, W, B)));
 %      Y(i,j,1:B) = uint8(round(NewPixel'));
 %   end
 %end
-% ¤£¹L¦b Matlab ¤¤ for °j°éªº³B²z³t«×¶W¯ÅºC
+% ä¸éåœ¨ Matlab ä¸­ for è¿´åœˆçš„è™•ç†é€Ÿåº¦è¶…ç´šæ…¢
 
-% Eliminate I&Q Chanel ¥u¨ú Gray Level
+% Eliminate I&Q Chanel åªå– Gray Level
 Z = repmat(Y(:,:,1),1,1,B);
 
-% ¦sÀÉ
+% å­˜æª”
 imwrite(Z,'lena_gray.bmp');
 
-% Åã¥Üµ²ªG
+% é¡¯ç¤ºçµæœ
 subplot(1,2,1);
 image(X);
 title ('Original Image');
