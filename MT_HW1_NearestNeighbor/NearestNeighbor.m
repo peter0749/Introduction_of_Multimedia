@@ -1,12 +1,12 @@
 clear;
-colormap gray;
-def_img_scale = [192 168];
-def_img_size = 192*168;
-DirPrefix = 'CroppedYale\';
+fprec = fopen('precision.txt','w');%Output precision
+def_img_scale = [192 168];%Dimension of images
+def_img_size = 192*168;%Number of rows
+DirPrefix = 'CroppedYale\';%Prefix of the folder
 Dirs = ls(strcat(DirPrefix,'yale*'));
 Dirs = strcat(DirPrefix,Dirs);
-pages = [0];
-images = [];
+pages = [0];%Number of pictures of the i-th people in i-th folder
+images = [];%Total images, sort by the order of Folders and images in each folder.
 fprintf('Loading...');
 for i = 1:size(Dirs,1)
    ls_images = strcat( Dirs(i,:) , '\', ls(strcat(Dirs(i,:) , '\*.pgm')));
@@ -19,8 +19,8 @@ for i = 1:size(Dirs,1)
    %temp_images is the i-th col. in images
    images = [ images ; temp_images ];
 end
-images = single(images);
-id_offset = cumsum(pages);
+images = single(images);%Change to single for speed.
+id_offset = cumsum(pages);%Compute the index for each folder in "images" matrix.
 NNebor = [];%For SSD
 NNebor0 = [];%For SAD
 fprintf('Loaded images successfully! Begin to compute SSD, SAD...');
@@ -53,12 +53,18 @@ for i = 1:size(images,1)
 end
 
 SAD_C = 0; SSD_C = 0;
+%Note: The content in sum() is a index of vector which elements are logical
+%numbers, 0 and 1.
+%Summarize them to get the total number of currect NN for each pictures.
 for i = 1:size(id_offset,2)-1
     SAD_C = SAD_C + sum(NNebor0(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
     SSD_C = SSD_C + sum(NNebor(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
 end
 SAD_P = SAD_C / size(images,1)
 SSD_P = SSD_C / size(images,1)
+fprintf(fprec, 'SAD: %f\r\nSDD: %f\r\n',SAD_P, SSD_P);
+fclose(fprec);
+csvwrite('NNTable.csv',[NNebor ; NNebor0]);%write the result to table
 %Plot two images for demostration...
 i=round(rand()*size(images,1));
 j=NNebor(i);
@@ -69,5 +75,6 @@ subplot(1,2,1);
 image(k1(:,:));axis image;
 subplot(1,2,2);
 image(k2(:,:));axis image;
-
+imwrite([k1 k2], 'sample.pgm');%Save the demo images.
+clear;
 %image(temp_images);
