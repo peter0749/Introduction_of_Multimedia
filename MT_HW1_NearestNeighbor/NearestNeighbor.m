@@ -55,7 +55,7 @@ end
 SAD_C = 0; SSD_C = 0;
 %Note: The content in sum() is a index of vector which elements are logical
 %numbers, 0 and 1.
-%Summarize them to get the total number of currect NN for each pictures.
+%Summarize them to get the total number of correct NN for each pictures.
 for i = 1:size(id_offset,2)-1
     SAD_C = SAD_C + sum(NNebor0(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
     SSD_C = SSD_C + sum(NNebor(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
