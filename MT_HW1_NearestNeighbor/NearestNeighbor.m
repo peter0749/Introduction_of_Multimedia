@@ -2,14 +2,22 @@ clear;
 fprec = fopen('precision.txt','w');%Output precision
 def_img_scale = [192 168];%Dimension of images
 def_img_size = 192*168;%Number of rows
-DirPrefix = 'CroppedYale\';%Prefix of the folder
-Dirs = ls(strcat(DirPrefix,'yale*'));
-Dirs = strcat(DirPrefix,Dirs);
+DirPrefix = 'CroppedYale';%Prefix of the folder
+tdir = dir(fullfile(DirPrefix,'yale*'));
+Dirs = [];
+for i = 1:size(tdir,1)
+	Dirs = [Dirs ; fullfile(DirPrefix,tdir(i).name)];
+end
 pages = [0];%Number of pictures of the i-th people in i-th folder
 images = [];%Total images, sort by the order of Folders and images in each folder.
 fprintf('Loading...');
 for i = 1:size(Dirs,1)
-   ls_images = strcat( Dirs(i,:) , '\', ls(strcat(Dirs(i,:) , '\*.pgm')));
+    
+	tdir = dir(fullfile(Dirs(i,:),'*.pgm'));
+	ls_images = [];
+	for j = 1:size(tdir,1)-1%Discard black images
+		ls_images = [ls_images ; fullfile(Dirs(i,:),tdir(j).name)];
+	end
    temp_images = [];
    pages = [pages size(ls_images,1)];
    for j = 1:size(ls_images,1)
