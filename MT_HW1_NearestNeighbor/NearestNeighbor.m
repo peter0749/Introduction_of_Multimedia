@@ -6,18 +6,19 @@ DirPrefix = 'CroppedYale';%Prefix of the folder
 tdir = dir(fullfile(DirPrefix,'yale*'));
 Dirs = [];
 for i = 1:size(tdir,1)
-	Dirs = [Dirs ; fullfile(DirPrefix,tdir(i).name)];
+	Dirs = char(Dirs , fullfile(DirPrefix,tdir(i).name));
 end
+Dirs(1,:) = [];
 pages = [0];%Number of pictures of the i-th people in i-th folder
 images = [];%Total images, sort by the order of Folders and images in each folder.
 fprintf('Loading...');
 for i = 1:size(Dirs,1)
-    
 	tdir = dir(fullfile(Dirs(i,:),'*.pgm'));
 	ls_images = [];
-	for j = 1:size(tdir,1)-1%Discard black images
-		ls_images = [ls_images ; fullfile(Dirs(i,:),tdir(j).name)];
-	end
+	for j = 1:size(tdir,1)
+		ls_images = char(ls_images , fullfile(Dirs(i,:),tdir(j).name));
+    end
+    ls_images(1,:) = [];
    temp_images = [];
    pages = [pages size(ls_images,1)];
    for j = 1:size(ls_images,1)
