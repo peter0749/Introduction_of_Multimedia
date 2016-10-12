@@ -86,6 +86,5 @@ image(k1(:,:));axis image;
 subplot(1,2,2);
 image(k2(:,:));axis image;
 imwrite([k1 k2], 'sample.pgm');%Save the demo images.
-clear diffsum diffsum0 difftab difftab0 images temp_images;
 
 %image(temp_images);
