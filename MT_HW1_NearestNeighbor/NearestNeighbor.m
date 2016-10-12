@@ -67,8 +67,9 @@ SAD_C = 0; SSD_C = 0;
 %numbers, 0 and 1.
 %Summarize them to get the total number of correct NN for each pictures.
 for i = 1:size(id_offset,2)-1
-    SAD_C = SAD_C + sum(NNebor0(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
-    SSD_C = SSD_C + sum(NNebor(id_offset(i)+1:id_offset(i+1)) <= id_offset(i+1));
+    index = id_offset(i)+1:id_offset(i+1);
+    SAD_C = SAD_C + sum(NNebor0(index) <= id_offset(i+1) & NNebor0(index) > id_offset(i));
+    SSD_C = SSD_C + sum(NNebor(index) <= id_offset(i+1) & NNebor(index) > id_offset(i));
 end
 SAD_P = SAD_C / size(images,2)
 SSD_P = SSD_C / size(images,2)
