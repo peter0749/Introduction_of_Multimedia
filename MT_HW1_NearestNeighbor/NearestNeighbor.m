@@ -22,7 +22,8 @@ for i = 1:size(Dirs,1)
    temp_images = [];
    pages = [pages size(ls_images,1)];
    for j = 1:size(ls_images,1)
-       single_image = reshape(imresize(imread(ls_images(j,:)), def_img_scale), def_img_size, 1);
+       tstr = strrep(ls_images(j,:), ' ','');
+       single_image = reshape(imresize(imread(tstr), def_img_scale), def_img_size, 1);
       temp_images = [temp_images  single_image];
    end
    %Each picture is the i-th col. in images
@@ -85,5 +86,6 @@ image(k1(:,:));axis image;
 subplot(1,2,2);
 image(k2(:,:));axis image;
 imwrite([k1 k2], 'sample.pgm');%Save the demo images.
+clear diffsum diffsum0 difftab difftab0 images temp_images;
 
 %image(temp_images);
