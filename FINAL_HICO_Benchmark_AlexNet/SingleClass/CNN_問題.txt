@@ -1,0 +1,186 @@
+遇到不同 image size 的解決辦法：
+=> 設成 AlexNet 預設的 Nx3x227x227 (N*channel*row*col)
+=> 但是 matlab 與 hdf5 看的 dim 方向相反，
+因此在matlab 中要設成227x227x3xN (col*row*channel*N)
+而Label labelsxN (也就是HDF5的Nxlabels)
+=> 設定完後可以使用 h5ls 檢查，Ubuntu 上可以下載 hdf5-tools 套件安裝。
+結果應該會像：
+data                     Dataset {16, 3, 227, 227}
+label                    Dataset {16, 600, 1, 1}
+#這裡以16 筆資料為例子
+而在記憶體裡Load 完全部的影像不是一個適當的作法，
+因此需要一筆一筆寫入hdf5檔案
+=> append
+
+改動train_val.prototxt 如下：
+name: "AlexNet"
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  hdf5_data_param {
+    source: "train_loc.txt"
+    batch_size: 16
+  }
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  hdf5_data_param {
+    source: "test_loc.txt"
+    batch_size: 8
+  }
+}
+///（中間略）
+拿掉
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc8"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+因為Accuracy 不支援 multi-label
+
+SoftmaxWithLoss 在multi-label 時出現問題，所以
+SoftmaxWithLoss => SigmoidCrossEntropyLoss 或是 EuclideanLoss
+
+改動solver.prototxt 如下：
+type: "AdaGrad" #使用"AdaGrad" (Adaptive Gradient) 優化方法
+刪除 momentum
+使用 fixed 步進
+net: "train_val.prototxt"
+test_iter: 100
+test_interval: 500
+base_lr: 0.01
+lr_policy: "fixed"
+display: 100
+max_iter: 45000
+weight_decay: 0.0005
+snapshot: 10000
+snapshot_prefix: "models/caffe_alexnet_train"
+solver_mode: GPU
+type: "AdaGrad"
+=> 但是有可能不收斂
+
+改動 deploy.prototxt 如下：
+name: "AlexNet"
+layer {
+  name: "data"
+  type: "Input"
+  top: "data"
+  input_param { shape: { dim: 1 dim: 3 dim: 227 dim: 227 } }
+}
+///（略）
+layer {
+  name: "prob"
+  type: "Sigmoid"
+  bottom: "fc8"
+  top: "prob"
+}
+=> 或是直接拔掉 prob層（For Euclidean）
+
+Training 時遇到一個問題：
+blob size exceeds INT_MAX
+似乎是caffe 對HDFS5 的先天限制，單檔不能超過2GB，
+必須切割。
+
+還有Sigmoid 的工作範圍是 [0, inf)，自然數
+但Label 有NaN與負值，需要對Label 進行處理。
+=> 將 Label == nan 的轉成 negative(-1)，或是uncertain(2)
+=> 然後將整個Labels 往上平移至[0, inf) 範圍（實際 [0,2]）
+=> 0: nagative; 1: uncertain; 2: positive
+
+如何設定 matcaffe
+=> 回到 Caffe 的建制目錄，執行 make matcaffe
+=> 將matlab 的 $LD_PRELOAD 指定為 libstdc++.so.6
+=> 將 matcaffe 的路徑 addpath(路徑)
+=> caffe.set_mode_gpu();
+=> gpu_id = 0;
+=> caffe.set_device(gpu_id);
+=> ...
+
+=== 老師建議用SoftmaxWithLoss ===
+
+我明白了，不過 fc8 那裡我們之前就改 600 了，
+後來發現似乎是 batch_size 的 dim 的問題，
+假設 batch_size = 16，
+在 fc8 他會提示 16x600 (9600)，
+然後 loss 部份 16 vs 9600(labels)會死掉。
+還有我這個部份用 Reshape 解決了，就直接 9600x1(Data) vs 9600x1(Label)
+就沒有問題！再次感謝老師XD
+參考這裡 
+https://www.kaggle.com/c/second-annual-data-science-bowl/forums/t/19342/need-help-with-caffe-loss-layer-dimension?forumMessageId=110524
+
+loss == 0 ?
+gradian is not changing
+
+
+=== 返回使用 SigmoidCrossEntropyLoss ===
+
+但似乎 loss 停在 2x 就不再收斂了，
+=> 改lr 0.001
+=> 改AdaDelta
+=> 多代幾次，希望他收斂
+
+=> 改回SGD，就算慢也希望它收斂
+
+=== 改使用 EuclideanLoss ===
+
+使用Know Object 模式，將NaN設為0，其餘不動。
+=> -1: Negative, 0: Unknown, 1: Positive
+
+Caffe 的Loss 計算方式是對每個計算出的Loss 加總
+
+在資料餵進AlexNet之千，影像必須正規化
+=> 對資料集中，所有的圖片取平均，得到一張mean image，
+之後每張圖片減去該mean image
+
+HDF5 Layer 有Random Shuffle 的參數
+=> 針對Training Data 做 random shuffle
+改動 HDF5輸入的Layer 如下
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  hdf5_data_param {
+    source: "train_loc.txt"
+    batch_size: 16
+    shuffle: true
+  }
+}
+
+訓練模型有可能受到Label 的極端值影響。
+有一個說法，若將AlexNet 的後面兩個Pooling 層使用Average Pooling，
+可以降低Noise Data 造成的影響（主要是背景部份）。
+
+=> 將後面兩 Polling 層改為 AVE
+正確性有明顯提升，較不受Noise Data 干擾。
+
+=> 資料增量
+將圖片水平、垂直翻轉
+
+=> caffe GPU out of memory 解決辦法
+將batch_size 調小
+
+=> 若Loss 沒有進步，可以嘗試把lr 降低一個數量級 *=0.1
+
+總iteration 95000次，約40個Epoch
+
+

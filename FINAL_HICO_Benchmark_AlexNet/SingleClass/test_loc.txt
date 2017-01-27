@@ -1,0 +1,10 @@
+img2hdf5/test/test_00001.hdf5
+img2hdf5/test/test_00002.hdf5
+img2hdf5/test/test_00003.hdf5
+img2hdf5/test/test_00004.hdf5
+img2hdf5/test/test_00005.hdf5
+img2hdf5/test/test_00006.hdf5
+img2hdf5/test/test_00007.hdf5
+img2hdf5/test/test_00008.hdf5
+img2hdf5/test/test_00009.hdf5
+img2hdf5/test/test_00010.hdf5

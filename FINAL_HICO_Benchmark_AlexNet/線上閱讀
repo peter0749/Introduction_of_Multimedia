@@ -1,0 +1,17 @@
+https://hackmd.io/IYBgrARgTBCmDGBaAnAMwIzEQFmANhEQj2wGZEwB2AE1nXmVOuAA5sg=
+or
+https://peter0749.gitbooks.io/caffe/content/
+
+
+=== Reference
+HICO_Benchmark: 
+https://github.com/ywchao/hico_benchmark
+
+Caffe_Models_AlexNet: 
+https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet
+
+HICO (Data and Paper):
+http://www-personal.umich.edu/~ywchao/hico/
+
+AlexNet (Paper):
+https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf

@@ -1,0 +1,14 @@
+net: "temp_net.prototxt"
+test_iter: 2383
+test_interval: 4000
+base_lr: 0.005
+lr_policy: "step"
+gamma: 0.1
+stepsize: 12000
+display: 200
+max_iter: 4000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 2000
+snapshot_prefix: "models/32/caffe_alexnet_train"
+solver_mode: GPU
