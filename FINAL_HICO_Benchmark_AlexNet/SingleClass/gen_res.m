@@ -4,7 +4,7 @@ anno = load('img2hdf5/anno.mat');
 caffe.set_mode_gpu();
 caffe.set_device(0);
 mkdir('features');
-weight = 'models/caffe_alexnet_train_iter_95000.caffemodel';
+weight = 'models/caffe_alexnet_train_iter_170040.caffemodel';
 model = 'extracter.prototxt';
 ori = caffe.Net(model, weight, 'test');
 H5List = table2array(readtable('train_loc.txt','Delimiter','/','ReadVariableNames',false));
